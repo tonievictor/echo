@@ -1,6 +1,4 @@
-# Socket GC
-
-A CLI appliocation that enables multiple clients to communicate on a shared server.
+This project is a work in progress and a learning experience inspired by [Socket Programming in C](https://www.youtube.com/watch?v=KEiur5aZnIM&t=1192s)
 
 ## Usage
 
@@ -26,7 +24,7 @@ cd client
 ./client <username>
 ```
 
-- Next create another client instance with your preferred username in a new terminal. (as many clients as you want).
+- Next, create another client instance with your preferred username in a new terminal. (as many clients as you want).
 
 ```bash
 cd client

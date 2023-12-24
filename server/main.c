@@ -5,25 +5,25 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-
 int main(void)
 {
-  int socket_fd;
-  int listenstat, bindstat;
-  struct sockaddr_in *server_add;
+	int socket_fd;
+	int listenstat, bindstat;
+	struct sockaddr_in *server_add;
 
-  socket_fd = createipv4socket();
-  server_add = createIpv4Address(2000, "");
+	socket_fd = createipv4socket();
+	server_add = createIpv4Address(2000, "");
 
-  bindstat = bind(socket_fd, (struct sockaddr *)server_add, sizeof(*server_add));
-  if (bindstat == 0) {
-    printf("Ready to accept incoming connections...\n");
-  }
+	bindstat = bind(socket_fd, (struct sockaddr *)server_add, sizeof(*server_add));
+	if (bindstat == 0)
+	{
+		printf("Ready to accept incoming connections...\n");
+	}
 
-  listenstat = listen(socket_fd, 10);
+	listenstat = listen(socket_fd, 10);
 
-  start_accepting_conn(socket_fd);
+	start_accepting_conn(socket_fd);
 
-  shutdown(socket_fd, SHUT_RDWR);
-  return EXIT_SUCCESS;
+	shutdown(socket_fd, SHUT_RDWR);
+	return EXIT_SUCCESS;
 }

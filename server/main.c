@@ -30,7 +30,7 @@ int main(void)
 	}
 
 	address = createipv4address(2000, "");
-	bind_stat = bind(server_fd, (struct sockaddr*)address, sizeof(*address));
+	bind_stat = bind(server_fd, (struct sockaddr *)address, sizeof(*address));
 	if (bind_stat < 0) {
 		perror("Unable to bind socket to specified address");
 		shutdown(server_fd, SHUT_RDWR);

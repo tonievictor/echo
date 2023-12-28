@@ -1,29 +1,65 @@
-#include "../socketgc.h"
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "../socketgc.h"
 
+/**
+ * main - entry point of the server.
+ * It initializes a server socket, binds it to a specified address
+ * and port, listens for incoming connections, and
+ * upon connection, accepts data from the client
+ * and prints the received response.
+ * Return: 0 on successful execution, otherwise it returns 1.
+ *
+*/
 int main(void)
 {
-	int socket_fd;
-	int listenstat, bindstat;
-	struct sockaddr_in *server_add;
+	int server_fd, bind_stat, listen_stat, accept_stat;
+	int	client_fd;
+	socklen_t client_addr_size;
+	char *buffer;
+	struct sockaddr_in *address;
+	struct sockaddr_in *client_address;
 
-	socket_fd = createipv4socket();
-	server_add = createIpv4Address(2000, "");
-
-	bindstat = bind(socket_fd, (struct sockaddr *)server_add, sizeof(*server_add));
-	if (bindstat == 0)
-	{
-		printf("Ready to accept incoming connections...\n");
+	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_fd < 0) {
+		perror("Unable to create socket");
+		return (EXIT_FAILURE);
 	}
 
-	listenstat = listen(socket_fd, 10);
+	address = createipv4address(2000, "");
+	bind_stat = bind(server_fd, (struct sockaddr*)address, sizeof(*address));
+	if (bind_stat < 0) {
+		perror("Unable to bind socket to specified address");
+		shutdown(server_fd, SHUT_RDWR);
+		free(address);
+		return (EXIT_FAILURE);
+	}
 
-	start_accepting_conn(socket_fd);
+	listen_stat = listen(server_fd, 10);
+	if (listen_stat < 0) {
+		perror("Unable to listen for incoming connections");
+		shutdown(server_fd, SHUT_RDWR);
+		free(address);
+		return (EXIT_FAILURE);
+	}
+	printf("Listening for incoming connections\n");
 
-	shutdown(socket_fd, SHUT_RDWR);
-	return EXIT_SUCCESS;
+	client_addr_size = sizeof(*client_address);
+	accept_stat = accept(server_fd, (struct sockaddr *)client_address, &client_addr_size);
+	if (accept_stat < 0) {
+		perror("Unable to accept incoming connection");
+		shutdown(server_fd, SHUT_RDWR);
+		free(address);
+		return (EXIT_FAILURE);
+	}
+
+	recv(client_fd, buffer, 1024, 0);
+	printf("Response was %s\n", buffer);
+
+	shutdown(server_fd, SHUT_RDWR);
+	free(address);
+	return (EXIT_SUCCESS);
 }

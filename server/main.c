@@ -16,12 +16,12 @@
 */
 int main(void)
 {
-	int server_fd, bind_stat, listen_stat, accept_stat;
+	int server_fd, bind_stat, listen_stat;
 	int	client_fd;
 	socklen_t client_addr_size;
 	char *buffer;
 	struct sockaddr_in *address;
-	struct sockaddr_in *client_address;
+	struct sockaddr_in client_address;
 
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0) {
@@ -29,12 +29,15 @@ int main(void)
 		return (EXIT_FAILURE);
 	}
 
+	buffer = malloc(1024 * sizeof(char));
+
 	address = createipv4address(2000, "");
 	bind_stat = bind(server_fd, (struct sockaddr *)address, sizeof(*address));
 	if (bind_stat < 0) {
 		perror("Unable to bind socket to specified address");
 		shutdown(server_fd, SHUT_RDWR);
 		free(address);
+		free(buffer);
 		return (EXIT_FAILURE);
 	}
 
@@ -43,23 +46,26 @@ int main(void)
 		perror("Unable to listen for incoming connections");
 		shutdown(server_fd, SHUT_RDWR);
 		free(address);
+		free(buffer);
 		return (EXIT_FAILURE);
 	}
 	printf("Listening for incoming connections\n");
 
-	client_addr_size = sizeof(*client_address);
-	accept_stat = accept(server_fd, (struct sockaddr *)client_address, &client_addr_size);
-	if (accept_stat < 0) {
+	client_addr_size = sizeof(client_address);
+	client_fd = accept(server_fd, (struct sockaddr *)&client_address, &client_addr_size);
+	if (client_fd < 0) {
 		perror("Unable to accept incoming connection");
 		shutdown(server_fd, SHUT_RDWR);
 		free(address);
+		free(buffer);
 		return (EXIT_FAILURE);
 	}
 
 	recv(client_fd, buffer, 1024, 0);
-	printf("Response was %s\n", buffer);
+	printf("%s\n", buffer);
 
 	shutdown(server_fd, SHUT_RDWR);
 	free(address);
+	free(buffer);
 	return (EXIT_SUCCESS);
 }

@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	}
 
 	printf("Connected! Type a message and press enter to send, or type 'exit' to exit.\r\n");
-	message = "Hello\r\n";
+	message = "Hello";
 	send(fd, message, strlen(message), 0);
 
 	close(fd);

@@ -1,0 +1,26 @@
+#include "servergc.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+void receiver(int client_fd)
+{
+	char *buffer;
+	ssize_t recv_stat;
+
+	buffer = malloc(1024 * sizeof(char));
+	if (buffer == NULL) {
+		perror("Unable to create socket");
+		return;
+	}
+
+	while (1) {
+		recv_stat = recv(client_fd, buffer, 1024, 0);
+		if (recv_stat <= 0) {
+			break;
+		}
+		printf("%s\n", buffer);
+	}
+	
+	free(buffer);
+	return;
+}

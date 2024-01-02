@@ -8,6 +8,7 @@ typedef struct accepted_socket_s {
 } accepted_socket_t;
 
 struct accepted_socket_s *accept_incomming_conn(int server_fd);
-void receiver(int client_fd);
+void *receiver(void *client_fd);
+void start_acccepting(int fd);
 
 #endif /* SERVERGC_H */

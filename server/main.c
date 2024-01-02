@@ -20,7 +20,6 @@ int main(void)
 {
 	int server_fd, bind_stat, listen_stat;
 	struct sockaddr_in *address;
-	accepted_socket_t *accepted_socket;
 
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0) {
@@ -46,12 +45,8 @@ int main(void)
 	}
 
 	printf("Listening for incoming connections\n");
+	start_acccepting(server_fd);
 
-	accepted_socket = accept_incomming_conn(server_fd);
-	receiver(accepted_socket->fd);
-
-	shutdown(server_fd, SHUT_RDWR);
 	free(address);
-	free(accepted_socket);
 	return (EXIT_SUCCESS);
 }

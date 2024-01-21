@@ -17,7 +17,6 @@ void *receiver(void *arg)
 	while (1) {
 		recv_stat = recv(client_fd, buffer, 1024, 0);
 		if (recv_stat <= 0) {
-			printf("wagwan\n");
 			break;
 		}
 		printf("%s\n", buffer);

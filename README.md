@@ -34,5 +34,6 @@ cd client
 - With the connection created, you can start sending messages via one client and the message would be broadcasted to the other client.
 
 ## Todo
-- [ ] Create broadcast and subscribe functionality.
-- [ ] Create exit functionality for the server.
+- [x] Create broadcast and subscribe functionality.
+- [x] Create exit functionality for the server.
+- [ ] Set the sockets to non-blocking mode.

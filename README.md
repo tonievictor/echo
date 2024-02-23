@@ -24,7 +24,7 @@ cd client
 ./client <username>
 ```
 
-- Next, create another client instance with your preferred username in a new terminal. (as many clients as you want).
+- Next, create another client instance with your preferred username in a new terminal (up tp ten).
 
 ```bash
 cd client
@@ -36,4 +36,5 @@ cd client
 ## Todo
 - [x] Create broadcast and subscribe functionality.
 - [x] Create exit functionality for the server.
+- [ ] Attach username to the client buffer.
 - [ ] Set the sockets to non-blocking mode.

@@ -1,6 +1,8 @@
 #include "servergc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
 
 void *receiver(void *arg) {
   accepted_socket_t *client = (accepted_socket_t *)arg;
@@ -19,9 +21,22 @@ void *receiver(void *arg) {
       break;
     }
     printf("%s\n", buffer);
+    broadcast(client->fd, buffer);
+    memset(buffer, 0, 1024);
   }
 
   free(client);
   free(buffer);
   return NULL;
+}
+
+void broadcast(int sender, const char *message) {
+  int i;
+
+  for (i = 0; i < no_of_clients; i++) {
+    if (accepted_clients[i]->fd != sender) {
+      printf("%d\n", accepted_clients[i]->fd);
+      send(accepted_clients[i]->fd, message, strlen(message), 0);
+    }
+  }
 }

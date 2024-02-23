@@ -1,5 +1,7 @@
 #include "../socketgc.h"
+#include "clientgc.h"
 #include <netinet/in.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +15,7 @@ int main(int argc, char **argv) {
   size_t linesize = 0;
   ssize_t char_count, amount_sent;
   char *username;
+  pthread_t id;
 
   if (argc != 2) {
     printf("Usage: %s <username>\n", argv[0]);
@@ -37,6 +40,8 @@ int main(int argc, char **argv) {
 
   printf("Connected! Type a message and press enter to send, or type 'exit' to "
          "exit.\r\n");
+
+  pthread_create(&id, NULL, subscribe, &fd);
   while (1) {
     char_count = getline(&line, &linesize, stdin);
 
@@ -48,6 +53,7 @@ int main(int argc, char **argv) {
     amount_sent = send(fd, line, char_count, 0);
   }
 
+  pthread_join(id, NULL);
   close(fd);
   free(address);
   free(line);

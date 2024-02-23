@@ -1,52 +1,60 @@
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <unistd.h>
 #include "../socketgc.h"
 #include "servergc.h"
+#include <netinet/in.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-/**
- * main - entry point of the server.
- * It initializes a server socket, binds it to a specified address
- * and port, listens for incoming connections, and
- * upon connection, accepts data from the client
- * and prints the received response.
- *
- * Return: 0 on successful execution, otherwise it returns 1.
- *
-*/
-int main(void)
-{
-	int server_fd, bind_stat, listen_stat;
-	struct sockaddr_in *address;
+int server_signal = 1;
 
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd < 0) {
-		perror("Unable to create socket");
-		return (EXIT_FAILURE);
-	}
+int main(void) {
+  int server_fd, bind_stat, listen_stat;
+  struct sockaddr_in *address;
+  char *line = NULL;
+  size_t linesize = 0;
+  ssize_t char_count;
+  pthread_t id;
 
-	address = createipv4address(2000, "");
-	bind_stat = bind(server_fd, (struct sockaddr *)address, sizeof(*address));
-	if (bind_stat < 0) {
-		perror("Unable to bind socket to specified address");
-		shutdown(server_fd, SHUT_RDWR);
-		free(address);
-		return (EXIT_FAILURE);
-	}
+  server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (server_fd < 0) {
+    perror("Unable to create socket");
+    return (EXIT_FAILURE);
+  }
 
-	listen_stat = listen(server_fd, 10);
-	if (listen_stat < 0) {
-		perror("Unable to listen for incoming connections");
-		shutdown(server_fd, SHUT_RDWR);
-		free(address);
-		return (EXIT_FAILURE);
-	}
+  address = createipv4address(2000, "");
+  bind_stat = bind(server_fd, (struct sockaddr *)address, sizeof(*address));
+  if (bind_stat < 0) {
+    perror("Unable to bind socket to specified address");
+    shutdown(server_fd, SHUT_RDWR);
+    free(address);
+    return (EXIT_FAILURE);
+  }
 
-	printf("Listening for incoming connections\n");
-	start_acccepting(server_fd);
+  listen_stat = listen(server_fd, 10);
+  if (listen_stat < 0) {
+    perror("Unable to listen for incoming connections");
+    shutdown(server_fd, SHUT_RDWR);
+    free(address);
+    return (EXIT_FAILURE);
+  }
 
-	free(address);
-	return (EXIT_SUCCESS);
+  printf("Listening for incoming connections\n");
+  pthread_create(&id, NULL, start_acccepting, &server_fd);
+
+  while (1) {
+    char_count = getline(&line, &linesize, stdin);
+    if (char_count > 0 || strcmp(line, "exit\n")) {
+      server_signal = 0;
+      break;
+    }
+  }
+
+  printf("Gracefully shutting down the server...\n");
+  pthread_join(id, NULL);
+  free(line);
+  free(address);
+  return (EXIT_SUCCESS);
 }

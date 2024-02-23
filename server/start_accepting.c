@@ -1,20 +1,24 @@
 #include "servergc.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-void start_acccepting(int fd)
-{
-	accepted_socket_t *accepted_socket;
-	pthread_t id_receive;
+void *start_acccepting(void *fd) {
+  accepted_socket_t *accepted_socket = NULL;
+  pthread_t id;
+  int server_fd = *(int *)fd;
 
-	while (1) {
-		accepted_socket = accept_incomming_conn(fd);	
-		pthread_create(&id_receive, NULL, receiver, &accepted_socket->fd);
-	}
+  while (server_signal == 1) {
+    accepted_socket = accept_incomming_conn(server_fd);
+    if (accepted_socket != NULL) {
+      pthread_create(&id, NULL, receiver, accepted_socket);
+      continue;
+    }
+  }
 
-	free(accepted_socket);
+  pthread_join(id, NULL);
+  return (NULL);
 }

@@ -1,5 +1,6 @@
 #include "../socketgc.h"
 #include "servergc.h"
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -9,6 +10,7 @@
 #include <unistd.h>
 
 int server_signal = 1;
+int exit_flag = 0;
 
 int main(void) {
   int server_fd, bind_stat, listen_stat;
@@ -47,6 +49,7 @@ int main(void) {
   while (1) {
     char_count = getline(&line, &linesize, stdin);
     if (char_count > 0 || strcmp(line, "exit\n")) {
+      exit_flag = 1;
       server_signal = 0;
       break;
     }

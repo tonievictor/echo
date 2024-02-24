@@ -20,7 +20,6 @@ void *receiver(void *arg) {
     if (recv_stat <= 0 || server_signal == 0) {
       break;
     }
-    printf("%s\n", buffer);
     broadcast(client->fd, buffer);
     memset(buffer, 0, 1024);
   }
@@ -35,7 +34,6 @@ void broadcast(int sender, const char *message) {
 
   for (i = 0; i < no_of_clients; i++) {
     if (accepted_clients[i]->fd != sender) {
-      printf("%d\n", accepted_clients[i]->fd);
       send(accepted_clients[i]->fd, message, strlen(message), 0);
     }
   }

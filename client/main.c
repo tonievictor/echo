@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   pthread_t id;
 
   if (argc != 2) {
-    printf("Usage: %s <username>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <username>\n", argv[0]);
     return EXIT_FAILURE;
   }
   username = argv[1];
@@ -44,11 +44,9 @@ int main(int argc, char **argv) {
   pthread_create(&id, NULL, subscribe, &fd);
   while (1) {
     char_count = getline(&line, &linesize, stdin);
-
     if (char_count < 0 || strcmp(line, "exit\n") == 0) {
       break;
     }
-
     line[char_count - 1] = 0;
     amount_sent = send(fd, line, char_count, 0);
   }

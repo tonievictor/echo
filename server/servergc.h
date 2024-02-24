@@ -15,5 +15,6 @@ void broadcast(int sender, const char *message);
 extern int server_signal;
 extern accepted_socket_t *accepted_clients[10];
 extern int no_of_clients;
+extern int exit_flag;
 
 #endif /* SERVERGC_H */

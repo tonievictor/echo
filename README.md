@@ -1,5 +1,3 @@
-This project is a work in progress and a learning experience inspired by [Socket Programming in C](https://www.youtube.com/watch?v=KEiur5aZnIM&t=1192s)
-
 ## Usage
 
 - Build the executable
@@ -24,17 +22,17 @@ cd client
 ./client <username>
 ```
 
-- Next, create another client instance with your preferred username in a new terminal (up tp ten).
+- Next, create another client instance with your preferred username in a new terminal (up to ten).
 
 ```bash
 cd client
 ./client <username>
 ```
 
-- With the connection created, you can start sending messages via one client and the message would be broadcasted to the other client.
+- With the connection created, you can start sending messages via one client and the message would be broadcasted to the other client(s).
 
 ## Todo
+- [ ] Set the sockets to non-blocking mode.
 - [x] Create broadcast and subscribe functionality.
 - [x] Create exit functionality for the server.
-- [ ] Attach username to the client buffer.
-- [ ] Set the sockets to non-blocking mode.
+- [x] Attach username to the client buffer.

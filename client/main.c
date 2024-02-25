@@ -12,9 +12,9 @@ int main(int argc, char **argv) {
   int fd, conn_result;
   struct sockaddr_in *address;
   char *line = NULL;
-  size_t linesize = 0;
+  size_t linesize = 0, usernamesize, messagesize;
   ssize_t char_count, amount_sent;
-  char *username;
+  char *username, *message;
   pthread_t id;
 
   if (argc != 2) {
@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   username = argv[1];
+  usernamesize = strlen(username);
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
   if (fd < 0) {
@@ -48,7 +49,9 @@ int main(int argc, char **argv) {
       break;
     }
     line[char_count - 1] = 0;
-    amount_sent = send(fd, line, char_count, 0);
+    messagesize = usernamesize + (char_count - 1) + 2;
+    message = str_cat(username, line);
+    amount_sent = send(fd, message, messagesize, 0);
   }
 
   pthread_join(id, NULL);
@@ -56,4 +59,17 @@ int main(int argc, char **argv) {
   free(address);
   free(line);
   return (EXIT_SUCCESS);
+}
+
+char *str_cat(char *username, char *message) {
+  char *res;
+
+  if (username == NULL || message == NULL) {
+    return (NULL);
+  }
+
+  res = strcat(username, ": ");
+  res = strcat(res, message);
+
+  return res;
 }

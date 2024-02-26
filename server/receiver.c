@@ -1,8 +1,7 @@
 #include "servergc.h"
-#include <stdio.h>
+#include <pthread.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
+#include <unistd.h>
 
 void *receiver(void *arg) {
   accepted_socket_t *client = (accepted_socket_t *)arg;
@@ -20,21 +19,26 @@ void *receiver(void *arg) {
     if (recv_stat <= 0 || server_signal == 0) {
       break;
     }
+    pthread_mutex_lock(&mutex);
     broadcast(client->fd, buffer);
-    memset(buffer, 0, 1024);
+    memset(buffer, 0, strlen(buffer));
+    pthread_mutex_unlock(&mutex);
   }
 
+  close(client->fd);
   free(client);
+  client = NULL;
   free(buffer);
   return NULL;
 }
 
-void broadcast(int sender, const char *message) {
+void broadcast(int sender, char *message) {
   int i;
 
   for (i = 0; i < no_of_clients; i++) {
-    if (accepted_clients[i]->fd != sender) {
+    if (accepted_clients[i]->fd != sender && accepted_clients[i] != NULL) {
       send(accepted_clients[i]->fd, message, strlen(message), 0);
+      memset(message, 0, strlen(message));
     }
   }
 }

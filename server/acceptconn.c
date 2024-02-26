@@ -1,11 +1,15 @@
 #include "servergc.h"
+#include <errno.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 accepted_socket_t *accept_incomming_conn(int server_fd) {
   accepted_socket_t *accepted_socket;
   struct sockaddr_in client_address;
   int client_fd;
+  pthread_t id;
   socklen_t client_addr_size;
 
   accepted_socket = malloc(sizeof(accepted_socket_t));
@@ -18,7 +22,10 @@ accepted_socket_t *accept_incomming_conn(int server_fd) {
   client_fd =
       accept(server_fd, (struct sockaddr *)&client_address, &client_addr_size);
   if (client_fd < 0) {
-    perror("Unable to accept incoming connection");
+    if (errno != 22) {
+      perror("Unable to accept incoming connection");
+    }
+    free(accepted_socket);
     return (NULL);
   }
 

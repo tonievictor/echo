@@ -1,7 +1,4 @@
 #include "servergc.h"
-#include <pthread.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 void *receiver(void *arg) {
   accepted_socket_t *client = (accepted_socket_t *)arg;
@@ -26,6 +23,7 @@ void *receiver(void *arg) {
   close(client->fd);
   free(client);
   client = NULL;
+  no_of_clients--;
   free(buffer);
   return NULL;
 }

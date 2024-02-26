@@ -1,6 +1,5 @@
 #include "../socketgc.h"
 #include "servergc.h"
-#include <unistd.h>
 
 int server_signal = 1;
 

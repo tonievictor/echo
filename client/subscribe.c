@@ -15,7 +15,7 @@ void *subscribe(void *arg) {
 
   while (1) {
     recv_stat = recv(fd, buffer, 1024, 0);
-    if (recv_stat <= 0) {
+    if (recv_stat <= 0 || client_signal == 0) {
       break;
     }
 

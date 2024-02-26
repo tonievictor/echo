@@ -14,12 +14,16 @@ void *subscribe(void *arg) {
   }
 
   while (1) {
+    pthread_mutex_lock(&mutex);
     recv_stat = recv(fd, buffer, 1024, 0);
     if (recv_stat <= 0 || client_signal == 0) {
       break;
     }
 
     printf("%s\n", buffer);
+    memset(buffer, 0, strlen(buffer));
+
+    pthread_mutex_unlock(&mutex);
   }
 
   free(buffer);

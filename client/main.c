@@ -1,8 +1,12 @@
 #include "../socketgc.h"
 #include "clientgc.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 
 int client_signal = 1;
+pthread_mutex_t mutex;
 
 int main(int argc, char **argv) {
   int fd, conn_result;
@@ -12,7 +16,7 @@ int main(int argc, char **argv) {
   ssize_t char_count, amount_sent;
   char *username, *message;
   pthread_t id;
-  pthread_mutex_t mutex;
+  pthread_mutex_init(&mutex, NULL);
 
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <username>\n", argv[0]);
@@ -38,25 +42,26 @@ int main(int argc, char **argv) {
   printf("Connected! Type a message and press enter to send, or type 'exit' to "
          "exit.\r\n");
 
-  pthread_mutex_init(&mutex, NULL);
   pthread_create(&id, NULL, subscribe, &fd);
   while (1) {
     char_count = getline(&line, &linesize, stdin);
     if (char_count < 0 || strcmp(line, "exit\n") == 0) {
       client_signal = 0;
       break;
+    } else {
+      line[char_count - 1] = '\0';
+      message = malloc((strlen(username) + char_count) * sizeof(char));
+      sprintf(message, "%s%s", username, line);
+      amount_sent = send(fd, message, strlen(message), 0);
+      free(message);
     }
-    line[char_count - 1] = 0;
-    message = strcat(username, line);
-    amount_sent = send(fd, message, strlen(message), 0);
-    memset(message, 0, strlen(message));
   }
 
   shutdown(fd, SHUT_RDWR);
   pthread_join(id, NULL);
+  pthread_mutex_destroy(&mutex);
   free(address);
   free(line);
 
-  pthread_mutex_destroy(&mutex);
   return (EXIT_SUCCESS);
 }

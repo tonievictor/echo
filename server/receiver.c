@@ -19,10 +19,8 @@ void *receiver(void *arg) {
     if (recv_stat <= 0 || server_signal == 0) {
       break;
     }
-    pthread_mutex_lock(&mutex);
     broadcast(client->fd, buffer);
     memset(buffer, 0, strlen(buffer));
-    pthread_mutex_unlock(&mutex);
   }
 
   close(client->fd);
@@ -37,8 +35,9 @@ void broadcast(int sender, char *message) {
 
   for (i = 0; i < no_of_clients; i++) {
     if (accepted_clients[i]->fd != sender && accepted_clients[i] != NULL) {
+      pthread_mutex_lock(&mutex);
       send(accepted_clients[i]->fd, message, strlen(message), 0);
-      memset(message, 0, strlen(message));
+      pthread_mutex_unlock(&mutex);
     }
   }
 }

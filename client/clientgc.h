@@ -14,4 +14,5 @@ char *str_cat(char *username, char *message);
 
 extern int client_signal;
 extern pthread_mutex_t mutex;
+extern pthread_mutex_t mutex;
 #endif // !CLIENT_H

@@ -1,5 +1,6 @@
 #include "../socketgc.h"
 #include "servergc.h"
+#include <unistd.h>
 
 int server_signal = 1;
 
@@ -34,7 +35,8 @@ int main(void) {
     return (EXIT_FAILURE);
   }
 
-  printf("Listening for incoming connections\n");
+  printf("Listening for incoming connections. Type 'exit' to shutdown the "
+         "server\n");
   pthread_create(&id, NULL, start_acccepting, &server_fd);
 
   while (1) {
@@ -46,6 +48,7 @@ int main(void) {
   }
 
   printf("Gracefully shutting down the server...\n");
+  sleep(5);
   shutdown(server_fd, SHUT_RDWR);
   close(server_fd);
   pthread_join(id, NULL);

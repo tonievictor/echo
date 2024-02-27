@@ -3,7 +3,7 @@
 - Build the executable
 
 ```bash
-git clone https://github.com/Tonie-NG/socket-gc.git
+git clone https://github.com/tonie-ng/socket-gc.git
 cd socket-gc
 ./runner.sh
 ```

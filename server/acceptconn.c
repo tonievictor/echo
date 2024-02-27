@@ -9,7 +9,6 @@ accepted_socket_t *accept_incomming_conn(int server_fd) {
   accepted_socket_t *accepted_socket;
   struct sockaddr_in client_address;
   int client_fd;
-  pthread_t id;
   socklen_t client_addr_size;
 
   accepted_socket = malloc(sizeof(accepted_socket_t));

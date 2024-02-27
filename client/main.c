@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   struct sockaddr_in *address;
   char *line = NULL;
   size_t linesize = 0;
-  ssize_t char_count, amount_sent;
+  ssize_t char_count;
   char *username, *message;
   pthread_t id;
   pthread_mutex_init(&mutex, NULL);
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
       line[char_count - 1] = '\0';
       message = malloc((strlen(username) + char_count) * sizeof(char));
       sprintf(message, "%s%s", username, line);
-      amount_sent = send(fd, message, strlen(message), 0);
+      send(fd, message, strlen(message), 0);
       free(message);
     }
   }

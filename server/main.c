@@ -1,5 +1,6 @@
 #include "../socketgc.h"
 #include "servergc.h"
+#include <stdio.h>
 #include <unistd.h>
 
 int server_signal = 1;
@@ -54,5 +55,6 @@ int main(void) {
   pthread_join(id, NULL);
   free(line);
   free(address);
+  printf("Bye...");
   return (EXIT_SUCCESS);
 }

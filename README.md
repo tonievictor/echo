@@ -32,7 +32,7 @@ cd client
 - With the connection created, you can start sending messages via one client and the message would be broadcasted to the other client(s).
 
 ## Todo
-- [ ] Set the sockets to non-blocking mode.
+- [x] Set the sockets to non-blocking mode.
 - [x] Create broadcast and subscribe functionality.
 - [x] Create exit functionality for the server.
 - [x] Attach username to the client buffer.

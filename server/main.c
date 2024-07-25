@@ -55,6 +55,6 @@ int main(void) {
   pthread_join(id, NULL);
   free(line);
   free(address);
-  printf("Bye...");
+  printf("Bye...\n");
   return (EXIT_SUCCESS);
 }

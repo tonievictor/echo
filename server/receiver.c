@@ -22,7 +22,6 @@ void *receiver(void *arg) {
 
   close(client->fd);
   client = NULL;
-  no_of_clients--;
   free(buffer);
   return NULL;
 }

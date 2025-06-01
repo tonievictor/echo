@@ -1,4 +1,4 @@
-#include "../socketgc.h"
+#include "../echo.h"
 #include "clientgc.h"
 #include <stdio.h>
 #include <stdlib.h>

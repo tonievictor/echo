@@ -1,4 +1,4 @@
-#include "../socketgc.h"
+#include "../echo.h"
 #include "servergc.h"
 #include <stdio.h>
 #include <unistd.h>

@@ -1,60 +1,54 @@
-#include "../echo.h"
-#include "servergc.h"
+#include <arpa/inet.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
-int server_signal = 1;
-
+#define PORT 2000
 int main(void) {
-  int server_fd, bind_stat, listen_stat;
   struct sockaddr_in *address;
-  char *line = NULL;
-  size_t linesize = 0;
-  ssize_t char_count;
-  pthread_t id;
+  int peer, fd;
 
-  server_fd = socket(AF_INET, SOCK_STREAM, 0);
-  if (server_fd < 0) {
-    perror("Unable to create socket");
-    return (EXIT_FAILURE);
+  fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) {
+    perror("could not create a new socket");
+    return EXIT_FAILURE;
   }
 
-  address = createipv4address(2000, "");
-  bind_stat = bind(server_fd, (struct sockaddr *)address, sizeof(*address));
-  if (bind_stat < 0) {
-    perror("Unable to bind socket to specified address");
-    shutdown(server_fd, SHUT_RDWR);
+  address = malloc(sizeof(struct sockaddr_in));
+  if (address == NULL) {
+    perror("Unable to allocate memory for address struct");
+    return EXIT_FAILURE;
+  }
+  address->sin_family = AF_INET;
+  address->sin_port = htons(PORT);
+  address->sin_addr.s_addr = inet_addr("127.0.0.1");
+
+  if (bind(fd, (struct sockaddr *)address, sizeof(*address)) == -1) {
+    char errmsg[50];
+    sprintf(errmsg, "unable to listen on server port %d", PORT);
+    perror(errmsg);
     free(address);
-    return (EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
-  listen_stat = listen(server_fd, 10);
-  if (listen_stat < 0) {
-    perror("Unable to listen for incoming connections");
-    shutdown(server_fd, SHUT_RDWR);
+  if (listen(fd, 10) == -1) {
+    perror("unable to listen on server port 2000");
     free(address);
-    return (EXIT_FAILURE);
+    return EXIT_FAILURE;
+  };
+
+  printf("Listening for incoming connections on port %d \n", PORT);
+
+  peer = accept(fd, NULL, 0);
+  if (peer == -1) {
+    perror("unable to listen on server port whatever");
+    free(address);
+    return EXIT_FAILURE;
   }
 
-  printf("Listening for incoming connections. Type 'exit' to shutdown the "
-         "server\n");
-  pthread_create(&id, NULL, start_acccepting, &server_fd);
-
-  while (1) {
-    char_count = getline(&line, &linesize, stdin);
-    if (char_count > 0 || strcmp(line, "exit\n")) {
-      server_signal = 0;
-      break;
-    }
-  }
-
-  printf("Gracefully shutting down the server...\n");
-  sleep(5);
-  shutdown(server_fd, SHUT_RDWR);
-  close(server_fd);
-  pthread_join(id, NULL);
-  free(line);
+  shutdown(fd, SHUT_RDWR);
   free(address);
-  printf("Bye...\n");
-  return (EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }

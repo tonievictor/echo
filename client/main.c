@@ -1,75 +1,79 @@
-#include "../echo.h"
-#include "clientgc.h"
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
-int client_signal = 1;
-pthread_mutex_t mutex;
+#define MAX_BUF_SIZE 1024
+pthread_mutex_t lock;
 
-int main(int argc, char **argv)
-{
-  int fd, conn_result;
+int main(int argc, char **argv) {
+  int fd, port;
   struct sockaddr_in *address;
   char *line = NULL;
-  size_t linesize = 0;
+  size_t n;
   ssize_t char_count;
-  char *username, *message;
-  pthread_t id;
-  pthread_mutex_init(&mutex, NULL);
+  char buffer[MAX_BUF_SIZE];
 
-  if (argc != 2)
-  {
-    fprintf(stderr, "Usage: %s <username>\n", argv[0]);
+  if (argc != 3) {
+    printf("Usage %s <port> <username>\n", argv[0]);
     return EXIT_FAILURE;
   }
-  username = strcat(argv[1], ": ");
+  port = atoi(argv[1]);
+  if (port == 0) {
+    printf("invalid port provided: %s\n", argv[1]);
+    return EXIT_FAILURE;
+  }
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
-  if (fd < 0)
-  {
-    perror("Unable to create socket");
-    return (EXIT_FAILURE);
-  }
-
-  address = createipv4address(2000, "127.0.0.1");
-  conn_result = connect(fd, (struct sockaddr *)address, sizeof(*address));
-  if (conn_result != 0)
-  {
-    perror("Unable to connect to the server");
+  address = malloc(sizeof(struct sockaddr_in *));
+  if (address == NULL) {
+    perror("could not allocate memory for the server addr");
     close(fd);
+    return EXIT_FAILURE;
+  }
+  address->sin_family = AF_INET;
+  address->sin_port = htons(port);
+  address->sin_addr.s_addr = inet_addr("127.0.0.1");
+
+  if (connect(fd, (struct sockaddr *)address, sizeof(struct sockaddr)) == -1) {
+    perror("could not establish a connection to the server");
     free(address);
-    return (EXIT_FAILURE);
+    close(fd);
+    return EXIT_FAILURE;
   }
 
-  printf("Connected! Type a message and press enter to send, or type 'exit' to "
-         "exit.\r\n");
+  while (1) {
+    char_count = getline(&line, &n, stdin);
+    if (char_count == -1) {
+      perror("ERROR: could not read user input");
+      free(line);
+      free(address);
+      close(fd);
+      return EXIT_FAILURE;
+    }
 
-  pthread_create(&id, NULL, subscribe, &fd);
-  while (1)
-  {
-    char_count = getline(&line, &linesize, stdin);
-    if (char_count < 0 || strcmp(line, "exit\n") == 0)
-    {
-      client_signal = 0;
+    if (strcmp(line, "exit\n") == 0)
       break;
+
+    if (send(fd, line, char_count, 0) == -1) {
+      perror("ERROR: could not send message");
+      free(line);
+      free(address);
+      close(fd);
+      return EXIT_FAILURE;
     }
-    else
-    {
-      line[char_count - 1] = '\0';
-      message = malloc((strlen(username) + char_count) * sizeof(char));
-      sprintf(message, "%s%s", username, line);
-      send(fd, message, strlen(message), 0);
-      free(message);
+    if (recv(fd, buffer, MAX_BUF_SIZE, 0) == -1) {
+      perror("ERROR: could not send message");
+      continue;
     }
+    printf("%s", buffer);
+    memset(buffer, 0, MAX_BUF_SIZE * sizeof(char));
   }
 
-  shutdown(fd, SHUT_RDWR);
-  pthread_join(id, NULL);
-  pthread_mutex_destroy(&mutex);
   free(address);
+  close(fd);
   free(line);
-
-  return (EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
